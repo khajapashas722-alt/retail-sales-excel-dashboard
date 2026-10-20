@@ -229,8 +229,8 @@ def build_retail_dashboard(csv_path: str, output_xlsx: str):
     unique_subcats = sorted(df["Sub-Category"].unique())
     for idx, sc in enumerate(unique_subcats, start=5):
         ws_subcat.cell(row=idx, column=2, value=sc).font = font_bold
-        # XLOOKUP for Category
-        ws_subcat.cell(row=idx, column=3, value=f"=XLOOKUP(B{idx}, 'Orders Data'!P:P, 'Orders Data'!O:O, \"Unknown\")").font = font_regular
+        # INDEX / MATCH for Category (100% universal Excel compatibility without _xlfn. namespace requirement)
+        ws_subcat.cell(row=idx, column=3, value=f"=INDEX('Orders Data'!$O:$O, MATCH(B{idx}, 'Orders Data'!$P:$P, 0))").font = font_regular
         ws_subcat.cell(row=idx, column=4, value=f"=SUMIFS('Orders Data'!R:R, 'Orders Data'!P:P, B{idx})").number_format = "$#,##0.00"
         ws_subcat.cell(row=idx, column=5, value=f"=SUMIFS('Orders Data'!U:U, 'Orders Data'!P:P, B{idx})").number_format = "$#,##0.00"
         ws_subcat.cell(row=idx, column=6, value=f"=E{idx}/D{idx}").number_format = "0.0%"
@@ -339,8 +339,8 @@ def build_retail_dashboard(csv_path: str, output_xlsx: str):
         ("Quantity", "Integer", "Direct source", "Total unit count of items in line."),
         ("Discount", "Percentage", "Direct source", "Promotional price reduction applied."),
         ("Profit", "Currency", "Direct source", "Net earnings generated after costs ($)."),
-        ("Cost", "Currency", "=Sales - Profit", "Inferred operational acquisition/fulfillment cost."),
-        ("Profit Margin", "Percentage", "=Profit / Sales", "Return on sales margin ratio.")
+        ("Cost", "Currency", "[Sales] - [Profit]", "Inferred operational acquisition/fulfillment cost."),
+        ("Profit Margin", "Percentage", "[Profit] / [Sales]", "Return on sales margin ratio.")
     ]
 
     for idx, (fn, dt, src, desc) in enumerate(dict_entries, start=5):
